@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,18 +12,16 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown } from "lucide-react"
+} from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -31,7 +29,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 const data = [
   {
@@ -106,29 +104,30 @@ const data = [
     createdAt: "13-08-2022",
     status: "Archived",
   },
-]
+];
 
 export type CallRecord = {
-  id: string
-  callType: string
-  direction: string
-  duration: string
-  durationSeconds: number
-  from: string
-  to: string
-  via: string
-  createdAt: string
-  status: string
-}
+  id: string;
+  callType: string;
+  direction: string;
+  duration: string;
+  durationSeconds: number;
+  from: string;
+  to: string;
+  via: string;
+  createdAt: string;
+  status: string;
+};
 
 export const columns: ColumnDef<CallRecord>[] = [
   {
     accessorKey: "callType",
     header: "CALL TYPE",
     cell: ({ row }) => {
-      const callType = row.getValue("callType") as string
-      const color = callType === "Voice Mail" ? "text-blue-500" : "text-red-500"
-      return <div className={color}>{callType}</div>
+      const callType = row.getValue("callType") as string;
+      const color =
+        callType === "Voice Mail" ? "text-blue-500" : "text-red-500";
+      return <div className={color}>{callType}</div>;
     },
   },
   {
@@ -140,14 +139,14 @@ export const columns: ColumnDef<CallRecord>[] = [
     accessorKey: "duration",
     header: "DURATION",
     cell: ({ row }) => {
-      const duration = row.getValue("duration") as string
-      const seconds = row.original.durationSeconds
+      const duration = row.getValue("duration") as string;
+      const seconds = row.original.durationSeconds;
       return (
         <div>
           {duration}
           <div className="text-xs text-gray-400">({seconds} seconds)</div>
         </div>
-      )
+      );
     },
   },
   {
@@ -182,19 +181,22 @@ export const columns: ColumnDef<CallRecord>[] = [
     header: "ACTIONS",
     cell: () => {
       return (
-        <Button variant="primary" size="sm" className="bg-blue-600 text-white">
+        <Button variant="default" size="sm" className="bg-blue-600 text-white">
           Add Note
         </Button>
-      )
+      );
     },
   },
-]
+];
 
 export function CallHistoryTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -218,12 +220,14 @@ export function CallHistoryTable() {
         pageSize: 10,
       },
     },
-  })
+  });
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <div className="text-2xl font-bold">Turing Technologies Frontend Test</div>
+        <div className="text-2xl font-bold">
+          Turing Technologies Frontend Test
+        </div>
       </div>
       <div className="flex items-center py-4">
         <div className="flex items-center">
@@ -238,9 +242,7 @@ export function CallHistoryTable() {
               <DropdownMenuCheckboxItem checked={true}>
                 Archived
               </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>
-                Active
-              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Active</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -260,7 +262,7 @@ export function CallHistoryTable() {
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -307,10 +309,18 @@ export function CallHistoryTable() {
         {Array.from({ length: table.getPageCount() }, (_, i) => (
           <Button
             key={i}
-            variant={table.getState().pagination.pageIndex === i ? "filled" : "outline"}
+            variant={
+              table.getState().pagination.pageIndex === i
+                ? "default"
+                : "outline"
+            }
             size="sm"
             onClick={() => table.setPageIndex(i)}
-            className={table.getState().pagination.pageIndex === i ? "bg-blue-600 text-white" : ""}
+            className={
+              table.getState().pagination.pageIndex === i
+                ? "bg-blue-600 text-white"
+                : ""
+            }
           >
             {i + 1}
           </Button>
@@ -325,13 +335,17 @@ export function CallHistoryTable() {
         </Button>
       </div>
       <div className="text-center text-sm">
-        {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} - {" "}
+        {table.getState().pagination.pageIndex *
+          table.getState().pagination.pageSize +
+          1}{" "}
+        -{" "}
         {Math.min(
-          (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+          (table.getState().pagination.pageIndex + 1) *
+            table.getState().pagination.pageSize,
           table.getFilteredRowModel().rows.length
         )}{" "}
         of {table.getFilteredRowModel().rows.length} results
       </div>
     </div>
-  )
+  );
 }
