@@ -5,26 +5,24 @@ import { useState, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Logo from "./logo";
 import { userLogin } from "@/services/auth-services";
-
-interface LoginFormData {
-  email: string;
-  password: string;
-}
+import { setCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
+import { LoginFormData } from "@/lib/types";
+import { validateForm } from "@/lib/helpers";
 
 const LoginForm = (): React.ReactElement => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] =
+    useState<Partial<LoginFormData>>();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -33,15 +31,35 @@ const LoginForm = (): React.ReactElement => {
       [name]: value,
     }));
   };
-
+  const resetData = () => {
+    setFormData({
+      email: "",
+      password: "",
+    });
+    setError(null);
+  };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) {
+      console.log("Validation Errors:", errors);
+      setValidationErrors(errors);
+      return;
+    }
     try {
       const response = await userLogin(formData.email, formData.password);
-      console.log("response", response);
+      setCookie("accessToken", response.access_token);
+      router.push("/calls");
+      resetData();
     } catch (error) {
-      console.error("Login failed", error);
-      // Handle error (e.g., show a notification)
+      if (error instanceof Error) {
+        setError(error.message || "Login failed. Please try again.");
+      } else {
+        setError("Login failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,6 +91,11 @@ const LoginForm = (): React.ReactElement => {
                     className="w-full"
                     required
                   />
+                  {validationErrors?.email && (
+                    <div className="text-red-500 text-sm">
+                      {validationErrors.email}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
@@ -86,10 +109,19 @@ const LoginForm = (): React.ReactElement => {
                     className="w-full"
                     required
                   />
+                  {validationErrors?.password && (
+                    <div className="text-red-500 text-sm">
+                      {validationErrors.password}
+                    </div>
+                  )}
                 </div>
               </div>
+              {error && (
+                <div className="mt-4 text-red-500 text-sm">{error}</div>
+              )}
               <div className="pt-4">
                 <Button
+                  loading={isLoading}
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
@@ -98,11 +130,6 @@ const LoginForm = (): React.ReactElement => {
               </div>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <a href="#" className="text-sm text-blue-600 hover:underline">
-              Forgot password?
-            </a>
-          </CardFooter>
         </Card>
       </div>
     </div>
