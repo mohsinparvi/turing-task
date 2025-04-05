@@ -15,4 +15,13 @@ interface CallRecord {
   via: string;
 }
 
-export type { LoginFormData, CallRecord };
+interface AddNotesProps {
+  id: string;
+  call_type: string;
+  duration: string;
+  from: string;
+  to: string;
+  via: string;
+}
+
+export type { LoginFormData, CallRecord, AddNotesProps };

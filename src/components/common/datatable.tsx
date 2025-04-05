@@ -32,6 +32,7 @@ import {
 import { getCallData } from "@/services/call-service";
 import { CallRecord } from "@/lib/types";
 import { formatDuration } from "@/lib/helpers";
+import AddNotes from "./add-notes";
 
 export const columns: ColumnDef<CallRecord>[] = [
   {
@@ -112,13 +113,19 @@ export const columns: ColumnDef<CallRecord>[] = [
     },
   },
   {
-    id: "actions",
+    accessorKey: "id",
     header: "ACTIONS",
-    cell: () => {
+    cell: ({ row }) => {
+      const id = row.getValue("id") as string;
       return (
-        <Button variant="default" size="sm" className="bg-blue-600 text-white">
-          Add Note
-        </Button>
+        <AddNotes
+          id={id}
+          call_type={row.getValue("call_type") as string}
+          duration={row.getValue("duration") as string}
+          from={row.getValue("from") as string}
+          to={row.getValue("to") as string}
+          via={row.getValue("via") as string}
+        />
       );
     },
   },
@@ -130,6 +137,7 @@ export function CallHistoryTable() {
     []
   );
   const [callsData, setCallsData] = React.useState<CallRecord[]>([]);
+  console.log("callsData", callsData);
   const [originalData, setOriginalData] = React.useState<CallRecord[]>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
