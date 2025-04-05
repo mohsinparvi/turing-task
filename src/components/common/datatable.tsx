@@ -1,6 +1,5 @@
 "use client";
-
-import * as React from "react";
+import React, { useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -30,98 +29,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-const data = [
-  {
-    id: "1",
-    callType: "Voice Mail",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33148288105",
-    to: "+33166114113",
-    via: "+33148288105",
-    createdAt: "12-08-2022",
-    status: "Archived",
-  },
-  {
-    id: "2",
-    callType: "Missed",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33166114113",
-    to: "+33148288105",
-    via: "+33148288105",
-    createdAt: "13-08-2022",
-    status: "Archived",
-  },
-  {
-    id: "3",
-    callType: "Voice Mail",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33148288105",
-    to: "+33166114113",
-    via: "+33148288105",
-    createdAt: "12-08-2022",
-    status: "Archived",
-  },
-  {
-    id: "4",
-    callType: "Missed",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33166114113",
-    to: "+33148288105",
-    via: "+33148288105",
-    createdAt: "13-08-2022",
-    status: "Archived",
-  },
-  {
-    id: "5",
-    callType: "Voice Mail",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33148288105",
-    to: "+33166114113",
-    via: "+33148288105",
-    createdAt: "12-08-2022",
-    status: "Archived",
-  },
-  {
-    id: "6",
-    callType: "Missed",
-    direction: "Outbound",
-    duration: "80 minutes 23 seconds",
-    durationSeconds: 4823,
-    from: "+33166114113",
-    to: "+33148288105",
-    via: "+33148288105",
-    createdAt: "13-08-2022",
-    status: "Archived",
-  },
-];
-
-export type CallRecord = {
-  id: string;
-  callType: string;
-  direction: string;
-  duration: string;
-  durationSeconds: number;
-  from: string;
-  to: string;
-  via: string;
-  createdAt: string;
-  status: string;
-};
+import { getCallData } from "@/services/call-service";
+import { CallRecord } from "@/lib/types";
 
 export const columns: ColumnDef<CallRecord>[] = [
   {
-    accessorKey: "callType",
+    accessorKey: "call_type",
     header: "CALL TYPE",
     cell: ({ row }) => {
       const callType = row.getValue("callType") as string;
@@ -140,7 +53,7 @@ export const columns: ColumnDef<CallRecord>[] = [
     header: "DURATION",
     cell: ({ row }) => {
       const duration = row.getValue("duration") as string;
-      const seconds = row.original.durationSeconds;
+      const seconds = row.original.duration;
       return (
         <div>
           {duration}
@@ -165,7 +78,7 @@ export const columns: ColumnDef<CallRecord>[] = [
     cell: ({ row }) => <div>{row.getValue("via")}</div>,
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "created_at",
     header: "CREATED AT",
     cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
   },
@@ -194,12 +107,13 @@ export function CallHistoryTable() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+  const [callsData, setCallsData] = React.useState<CallRecord[]>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: callsData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -222,6 +136,18 @@ export function CallHistoryTable() {
     },
   });
 
+  const getData = async () => {
+    try {
+      const response = await getCallData();
+      setCallsData(response.data);
+      console.log("response", response);
+    } catch (error) {
+      console.log("Error fetching call data:", error);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
