@@ -7,20 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Logo from "./logo";
-import { userLogin } from "@/services/auth-services";
-import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { LoginFormData } from "@/lib/types";
 import { validateForm } from "@/lib/helpers";
+import { useAuth } from "@/lib/hooks/use-auth";
 
 const LoginForm = (): React.ReactElement => {
+  const { login, error } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] =
     useState<Partial<LoginFormData>>();
 
@@ -31,35 +30,36 @@ const LoginForm = (): React.ReactElement => {
       [name]: value,
     }));
   };
+
   const resetData = () => {
     setFormData({
       email: "",
       password: "",
     });
-    setError(null);
+    setValidationErrors({});
   };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     const errors = validateForm(formData);
     if (Object.keys(errors).length > 0) {
-      console.log("Validation Errors:", errors);
       setValidationErrors(errors);
+      setIsLoading(false);
       return;
     }
+
     try {
-      const response = await userLogin(formData.email, formData.password);
-      setCookie("accessToken", response.access_token);
+      await login(formData.email, formData.password);
       router.push("/calls");
       resetData();
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message || "Login failed. Please try again.");
-      } else {
-        setError("Login failed. Please try again.");
-      }
-    } finally {
+    } catch (err) {
       setIsLoading(false);
+      if (err instanceof Error) {
+        setValidationErrors({ email: err.message });
+      } else {
+        setValidationErrors({ email: "Login failed. Please try again." });
+      }
     }
   };
 
@@ -116,9 +116,11 @@ const LoginForm = (): React.ReactElement => {
                   )}
                 </div>
               </div>
+
               {error && (
                 <div className="mt-4 text-red-500 text-sm">{error}</div>
               )}
+
               <div className="pt-4">
                 <Button
                   loading={isLoading}

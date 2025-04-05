@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
 import Header from "@/components/layouts/header";
+import { AuthProvider } from "@/lib/hooks/use-auth";
 
 const avenirltstdBlackFont = localFont({
   src: "../assets/fonts/AvenirLTStd-Black.otf",
@@ -37,9 +38,11 @@ export default function RootLayout({
       <body
         className={`${avenirltstdBlackFont.variable} ${avenirltstdBookFont.variable} ${avenirltstdRomanFont.variable} antialiased`}
       >
-        <Header />
+        <AuthProvider>
+          <Header />
 
-        {children}
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

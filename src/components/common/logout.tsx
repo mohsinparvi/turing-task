@@ -1,24 +1,28 @@
 "use client";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { Button } from "../ui/button";
-import { deleteCookie } from "cookies-next";
 
 const Logout = () => {
+  const { logout, isAuthenticated } = useAuth();
+
   const handleLogout = () => {
-    deleteCookie("accessToken");
-    window.location.href = "/auth/login"; // Redirect to login page after logout
+    logout();
+    window.location.href = "/auth/login";
   };
+
   return (
-    <div>
-      {/* bg-[var(--primary)] */}
-      <Button
-        variant="default"
-        color="blue"
-        className="  text-white hover: bg-[var(--primary)]/90"
-        onClick={handleLogout}
-      >
-        Logout
-      </Button>
-    </div>
+    <>
+      {isAuthenticated && (
+        <Button
+          variant="default"
+          color="blue"
+          className="text-white hover:bg-[var(--primary)]/90"
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      )}
+    </>
   );
 };
 
