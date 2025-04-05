@@ -136,7 +136,7 @@ export function CallHistoryTable() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
-  const [isLoading, setIsLoading] = React.useState(false);
+  // const [isLoading, setIsLoading] = React.useState(false);
   const [filter, setFilter] = React.useState("All");
 
   const table = useReactTable({
