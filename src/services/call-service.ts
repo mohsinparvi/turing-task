@@ -9,6 +9,8 @@ const getCallData = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/calls?offset=${offset}&limit=${limit}&filter=${filter}&sort=${sort}`,
     {
+      cache: "no-store",
+      next: { revalidate: 60 },
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -16,12 +18,13 @@ const getCallData = async (
       },
     }
   );
+
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
 
-  const { data, error } = await response.json();
-  console.log("error", error);
+  const data = await response.json();
+
   return data;
 };
 

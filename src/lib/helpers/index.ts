@@ -20,4 +20,15 @@ const validateForm = (data: LoginFormData) => {
   return errors;
 };
 
-export { validateForm };
+function formatDuration(seconds: number): string {
+  const totalMinutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${totalMinutes} minute${
+    totalMinutes !== 1 ? "s" : ""
+  } ${remainingSeconds} second${remainingSeconds !== 1 ? "s" : ""}`;
+}
+
+export { validateForm, formatDuration };
+
+
