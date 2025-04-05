@@ -1,12 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { useState, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Logo from "./logo";
 import { useRouter } from "next/navigation";
 import { LoginFormData } from "@/lib/types";
 import { validateForm } from "@/lib/helpers";
@@ -66,10 +64,6 @@ const LoginForm = (): React.ReactElement => {
   return (
     <div className="h-screen w-full flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md">
-        <div className="flex items-center mb-8">
-          <Logo />
-        </div>
-
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
