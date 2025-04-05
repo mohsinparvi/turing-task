@@ -1,52 +1,86 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
-import { userLogin } from "@/services/auth-services";
 
-interface AuthContextType {
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { userLogin, userRefreshToken } from "@/services/auth-services";
+
+interface AuthContextProps {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshAccessToken: () => Promise<void>;
   error: string | null;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [accessToken, setAccessToken] = useState<string | null>(
+    getCookie("accessToken") as string | null
+  );
+  console.log("accessToken", accessToken);
   const [error, setError] = useState<string | null>(null);
-  const accessToken = getCookie("accessToken");
+
+  const isAuthenticated = accessToken !== undefined;
 
   const login = async (email: string, password: string) => {
     try {
-      const data = await userLogin(email, password);
-
-      setCookie("accessToken", data.access_token);
-
-      setError(null);
+      const response = await userLogin(email, password);
+      setAccessToken(response.access_token);
+      setCookie("accessToken", response.access_token);
+      setCookie("refreshToken", response.refresh_token);
     } catch {
       setError("Login failed. Please try again.");
     }
   };
 
   const logout = () => {
+    setAccessToken(null);
     deleteCookie("accessToken");
+    deleteCookie("refreshToken");
+    setError(null);
     window.location.href = "/auth/login";
   };
 
-  const isAuthenticated = !!accessToken;
+  const refreshAccessToken = async () => {
+    if (!accessToken) {
+      throw new Error("No refresh token available");
+    }
+
+    try {
+      const response = await userRefreshToken(accessToken);
+      setAccessToken(response.access_token);
+      setCookie("accessToken", response.access_token);
+    } catch {
+      setError("Unable to refresh access token");
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isAuthenticated) {
+        refreshAccessToken();
+      }
+    }, 9 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, error }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, refreshAccessToken, error }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextProps => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");

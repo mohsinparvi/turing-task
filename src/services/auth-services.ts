@@ -20,4 +20,24 @@ const userLogin = async (email: string, password: string) => {
   return data;
 };
 
-export { userLogin };
+const userRefreshToken = async (currentToken: string) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/auth/refresh-token`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh_token: currentToken }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to refresh access token");
+  }
+
+  const data = await response.json();
+  return data; // { access_token: string }
+};
+
+export { userLogin, userRefreshToken };

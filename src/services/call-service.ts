@@ -28,13 +28,14 @@ const getCallData = async (
   return data;
 };
 
-const AddNotes = async (content: string) => {
+const AddNotesApi = async (id: string, content: string) => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/auth/login`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/calls/${id}/note`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("accessToken")}`,
       },
       body: JSON.stringify({ content }),
     }
@@ -48,4 +49,4 @@ const AddNotes = async (content: string) => {
   return data;
 };
 
-export { getCallData, AddNotes };
+export { getCallData, AddNotesApi };

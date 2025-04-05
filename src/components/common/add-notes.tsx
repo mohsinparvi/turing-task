@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { formatDuration } from "@/lib/helpers";
 import { AddNotesProps } from "@/lib/types";
-import { FC, memo, useState } from "react";
+import { AddNotesApi } from "@/services/call-service";
+import React, { FC, memo, useState } from "react";
 
 const AddNotes: FC<AddNotesProps> = ({
   id,
@@ -24,14 +25,34 @@ const AddNotes: FC<AddNotesProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  console.log("id", id);
-  const handleDeleteUser = async () => {
-    setIsLoading(true);
+  const [content, setContent] = useState<string>("");
 
+  const callDetails = [
+    {
+      label: "Call Type",
+      value: call_type,
+      extraClass: "text-blue-600 capitalize",
+    },
+    { label: "Durations", value: formatDuration(Number(duration)) },
+    { label: "From", value: from },
+    { label: "To", value: to },
+    { label: "Via", value: via },
+  ];
+
+  const handleSaveNote = async () => {
+    setIsLoading(true);
     try {
+      const response = await AddNotesApi(id, content);
+      if (response) {
+        setOpen(false);
+        setContent("");
+      }
     } catch (error) {
-      console.error("Error adding category:", error);
-      setError("An unexpected error occurred");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -58,23 +79,21 @@ const AddNotes: FC<AddNotesProps> = ({
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">
-          <p>Call Type</p>
-          <p className="text-blue-600">{call_type}</p>
-          <p>Durations</p>
-          <p>{formatDuration(Number(duration))}</p>
-          <p>From</p>
-          <p>{from}</p>
-          <p>To</p>
-          <p>{to}</p>
-          <p>Via</p>
-          <p>{via}</p>
+          {callDetails.map(({ label, value, extraClass }, index) => (
+            <React.Fragment key={index}>
+              <p>{label}</p>
+              <p className={extraClass || ""}>{value}</p>
+            </React.Fragment>
+          ))}
         </div>
         <div className="space-y-4">
           <p>Notes</p>
           <textarea
             className="w-full h-32 border border-gray-300 rounded-md p-2"
             placeholder="Add your notes here..."
-          ></textarea>
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
         </div>
         {error && (
           <div className="text-red-500 text-sm font-medium">{error}</div>
@@ -83,14 +102,13 @@ const AddNotes: FC<AddNotesProps> = ({
           <Button
             loading={isLoading}
             type="submit"
-            variant="destructive"
-            color="red"
-            onClick={handleDeleteUser}
+            variant="default"
+            color="blue"
+            disabled={content.length === 0}
+            onClick={handleSaveNote}
+            className="w-full"
           >
-            Delete
-          </Button>
-          <Button type="button" onClick={() => setOpen(false)}>
-            Cancel
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>

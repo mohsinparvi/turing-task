@@ -137,7 +137,6 @@ export function CallHistoryTable() {
     []
   );
   const [callsData, setCallsData] = React.useState<CallRecord[]>([]);
-  console.log("callsData", callsData);
   const [originalData, setOriginalData] = React.useState<CallRecord[]>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
