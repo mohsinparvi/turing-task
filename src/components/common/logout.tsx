@@ -7,7 +7,6 @@ const Logout = () => {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/auth/login";
   };
 
   return (
