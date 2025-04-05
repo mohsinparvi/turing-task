@@ -22,7 +22,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [accessToken, setAccessToken] = useState<string | null>(
     getCookie("accessToken") as string | null
   );
-  console.log("accessToken", accessToken);
   const [error, setError] = useState<string | null>(null);
 
   const isAuthenticated = accessToken !== undefined;

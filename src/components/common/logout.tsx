@@ -1,9 +1,12 @@
 "use client";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { Button } from "../ui/button";
+import { usePathname } from "next/navigation";
 
 const Logout = () => {
   const { logout, isAuthenticated } = useAuth();
+  const pathname = usePathname();
+
 
   const handleLogout = () => {
     logout();
@@ -11,7 +14,7 @@ const Logout = () => {
 
   return (
     <>
-      {isAuthenticated && (
+      {isAuthenticated && pathname !== '/auth/login' && (
         <Button
           variant="default"
           color="blue"
